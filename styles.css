@@ -1,0 +1,35 @@
+div#chessboard {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(8, 50px);
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+}
+
+.cell.visited {
+  color: #444;
+  background-color: #ccc;
+}
+
+.cell.odd {
+  color: white;
+  background-color: black;
+}
+
+.cell.odd.visited {
+  color: #ccc;
+  background-color: #444;
+}
+
+.start {
+  background-color: green !important;
+}
+
+.target {
+    background-color: indigo !important;
+}

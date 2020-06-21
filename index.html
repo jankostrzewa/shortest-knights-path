@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Knight's shortest path</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link type="text/css" rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <script src="script.js"></script>
+    <div class="controls">
+      <div>
+        <label for="size">
+          Provide the size for chess board (min 3 for movement, max 26 for A-Z, 8 by default):
+        </label>
+        <input type="number" id="size" value="8" min="3" max="26"/>
+      </div>
+      <div>
+        <label for="size">
+          Provide the starting field for knight (A1 by default):
+        </label>
+        <input type="text" id="start" value="A1" />
+      </div>
+      <div>
+        <label for="size">
+          Provide the target field for knight (B2 by default):
+        </label>
+        <input type="text" id="target" value="B2" />
+      </div>
+      <button type="submit" onclick="generateChessboard()">
+        Generate chessboard!
+      </button>
+    </div>
+    <div id="chessboard"></div>
+
+    <button type="submit" onclick="findShortestPath()">
+      Now show me the shortest path from start to target
+    </button>
+    <div id="result">
+
+    </textarea>
+  </body>
+</html>
