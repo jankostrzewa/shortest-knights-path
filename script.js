@@ -83,7 +83,7 @@ function findShortestPath() {
     const queue = [];
     const [startRow, startCol] = state.start;
     const [targetRow, targetCol] = state.target;
-    queue.push(new Field(startRow, startCol, 0, startRow, startCol));
+    queue.push(new Field(startRow, startCol, startRow, startCol));
     console.log('start:', state.start, 'target:', state.target);
     while (queue.length !== 0) {
         const field = queue.pop();
@@ -112,7 +112,7 @@ function findShortestPath() {
 
                 if (newRow >= 0 && newRow < state.size && newCol >= 0 && newCol < state.size) {
                     if (visited[newRow][newCol] === false) {
-                        queue.unshift(new Field(newRow, newCol, field.hops + 1, field.rowNumber, field.colNumber));
+                        queue.unshift(new Field(newRow, newCol, field.rowNumber, field.colNumber));
                         console.log(`from ${field.rowNumber} ${field.colNumber} enqueued:`, newRow, newCol);
                     }
                 }
@@ -140,17 +140,15 @@ function getPath(field, visited) {
 }
 
 class Field {
-    constructor(row, col, hops, parentRow, parentColumn) {
+    constructor(row, col, parentRow, parentColumn) {
         this.rowNumber = row;
         this.colNumber = col;
-        this.hops = hops;
         this.parentRow = parentRow;
         this.parentColumn = parentColumn;
 
     }
     rowNumber;
     colNumber;
-    hops;
     parentRow;
     parentColumn;
 }
