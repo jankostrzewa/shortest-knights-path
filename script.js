@@ -6,50 +6,51 @@ const state = {
 }
 
 function generateChessboard() {
-    const size = document.getElementById("size").value;
+
+    const size = new Number(document.getElementById("size").value);
     if (size < 3 || size > 26) {
-        alert("Provided size is not allowed");
+        alert("Provided size is incorrect");
         document.getElementById("size").value = 3;
         return;
     }
     state.size = size;
 
     const start = document.getElementById("start").value;
-    if(!/^([A-Z]{1})([0-9]{1,2})$/.test(start)) {
+    if (!/^([A-Z]{1})([0-9]{1,2})$/.test(start)) {
         alert("Provided field is not of correct format");
         document.getElementById("start").value = "A1";
         return;
     }
     state.start = getNumbersForCharacters(start);
-    if(state.start[0] >= state.size || state.start[1] >= state.size) {
+    if (state.start[0] >= state.size || state.start[1] >= state.size) {
         alert("Start value is out of bounds, aborting");
         document.getElementById("start").value = "A1";
         return;
     }
 
     const target = document.getElementById("target").value;
-    if(!/^([A-Z]{1})([0-9]{1,2})$/.test(target)) {
+    if (!/^([A-Z]{1})([0-9]{1,2})$/.test(target)) {
         alert("Provided field is not of correct format");
         document.getElementById("target").value = "B2";
         return;
     }
     state.target = getNumbersForCharacters(target);
-    if(state.target[0] >= state.size || state.target[1] >= state.size) {
+    if (state.target[0] >= state.size || state.target[1] >= state.size) {
         alert("Target value is out of bounds, aborting");
         document.getElementById("target").value = "B2";
         return;
     }
+
     const chessboardDiv = document.getElementById("chessboard");
     chessboardDiv.innerHTML = "";
     chessboardDiv.style.gridTemplateColumns = `repeat(${size}, 50px)`;
     for (var rowNumber = 0; rowNumber < size; rowNumber++) {
-        var rowName = String.fromCharCode("A".charCodeAt() + rowNumber);
         for (var colNumber = 0; colNumber < size; colNumber++) {
             var cell = document.createElement("div");
             let name = "";
             if ((colNumber + rowNumber) % 2 !== 0) name = " odd";
             cell.className = "cell" + name;
-            cell.innerHTML = rowName + (colNumber + 1);
+            cell.innerHTML =  getCharactersForNumbers(rowNumber, colNumber);
             chessboardDiv.appendChild(cell);
         }
     }
@@ -60,6 +61,8 @@ function generateChessboard() {
     const [targetRow, targetCol] = state.target;
     var targetElement = chessboardDiv.childNodes[targetRow * size + targetCol];
     targetElement.className += " target";
+
+    document.getElementById("result").innerHTML = "";
 }
 
 function findShortestPath() {
@@ -80,51 +83,82 @@ function findShortestPath() {
     const queue = [];
     const [startRow, startCol] = state.start;
     const [targetRow, targetCol] = state.target;
-    queue.push(new Field(startRow, startCol, 0));
+    queue.push(new Field(startRow, startCol, 0, startRow, startCol));
     console.log('start:', state.start, 'target:', state.target);
-    while (queue.length !== 0 && queue.length < 100) {
-        const field = queue.pop()
+    while (queue.length !== 0) {
+        const field = queue.pop();
+
         if (field.rowNumber === targetRow && field.colNumber === targetCol) {
-            document.getElementById('result').innerHTML = `The path took ${field.hops} hops`;
-            alert(`The path took ${field.hops} hops`);
-            return field.hops;
+            visited[field.rowNumber][field.colNumber] = [field.parentRow, field.parentColumn];
+            const path = getPath(field, visited);
+            const summary = document.createElement('div');
+            summary.innerHTML = `The path took ${path.length} hops:`;
+            document.getElementById('result').appendChild(summary);
+            path.forEach(item => {
+                const element = document.createElement('div');
+                element.innerHTML = item;
+                document.getElementById('result').appendChild(element);
+            });
+            alert(`The path took ${path.length} hops`);
+            state.visited = visited;
+            return path.length;
         }
 
         if (visited[field.rowNumber][field.colNumber] === false) {
-            visited[field.rowNumber][field.colNumber] = true;
+            visited[field.rowNumber][field.colNumber] = [field.parentRow, field.parentColumn];
             for (var i = 0; i < 8; i++) {
                 var newRow = field.rowNumber + moveRow[i];
                 var newCol = field.colNumber + moveCol[i];
-                if (isInside(newRow, newCol, state.size)) {
+
+                if (newRow >= 0 && newRow < state.size && newCol >= 0 && newCol < state.size) {
                     if (visited[newRow][newCol] === false) {
-                        queue.unshift(new Field(newRow, newCol, field.hops + 1));
+                        queue.unshift(new Field(newRow, newCol, field.hops + 1, field.rowNumber, field.colNumber));
                         console.log(`from ${field.rowNumber} ${field.colNumber} enqueued:`, newRow, newCol);
                     }
                 }
             }
         }
     }
-
+    alert('There is no possible path between two provided fields.');
     return Number.MAX_SAFE_INTEGER;
 }
 
+function getPath(field, visited) {
+    let path = [];
+    let currentRow = field.rowNumber;
+    let currentColumn = field.colNumber;
+    while (true) {
+        const [parentRow, parentColumn] = visited[currentRow][currentColumn];
+        if(parentRow === currentRow && parentColumn === currentColumn) {
+            break;
+        }
+        path.unshift(`${getCharactersForNumbers(parentRow, parentColumn)} => ${getCharactersForNumbers(currentRow, currentColumn)}`);
+        currentRow = parentRow;
+        currentColumn = parentColumn;
+    }
+    return path;
+}
+
 class Field {
-    constructor(row, col, hops) {
+    constructor(row, col, hops, parentRow, parentColumn) {
         this.rowNumber = row;
         this.colNumber = col;
         this.hops = hops;
+        this.parentRow = parentRow;
+        this.parentColumn = parentColumn;
+
     }
     rowNumber;
     colNumber;
     hops;
-}
-
-function isInside(newRow, newCol, size) {
-    return (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size);
+    parentRow;
+    parentColumn;
 }
 
 function getNumbersForCharacters(chars) {
-    const row = chars.substring(0, 1).charCodeAt() - "A".charCodeAt();
-    const col = new Number(chars.substring(1)) - 1;
-    return [row, col];
+    return [chars.substring(0, 1).charCodeAt() - "A".charCodeAt(), new Number(chars.substring(1)) - 1];
+}
+
+function getCharactersForNumbers(row, column) {
+    return String.fromCharCode("A".charCodeAt() + row) + (column + 1);
 }
