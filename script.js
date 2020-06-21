@@ -8,16 +8,37 @@ const state = {
 function generateChessboard() {
     const size = document.getElementById("size").value;
     if (size < 3 || size > 26) {
-        alert("Value out of bounds, aborting");
+        alert("Provided size is not allowed");
+        document.getElementById("size").value = 3;
         return;
     }
     state.size = size;
+
     const start = document.getElementById("start").value;
-    // TODO validate input
+    if(!/^([A-Z]{1})([0-9]{1,2})$/.test(start)) {
+        alert("Provided field is not of correct format");
+        document.getElementById("start").value = "A1";
+        return;
+    }
     state.start = getNumbersForCharacters(start);
+    if(state.start[0] >= state.size || state.start[1] >= state.size) {
+        alert("Start value is out of bounds, aborting");
+        document.getElementById("start").value = "A1";
+        return;
+    }
+
     const target = document.getElementById("target").value;
-    // TODO validate input
+    if(!/^([A-Z]{1})([0-9]{1,2})$/.test(target)) {
+        alert("Provided field is not of correct format");
+        document.getElementById("target").value = "B2";
+        return;
+    }
     state.target = getNumbersForCharacters(target);
+    if(state.target[0] >= state.size || state.target[1] >= state.size) {
+        alert("Target value is out of bounds, aborting");
+        document.getElementById("target").value = "B2";
+        return;
+    }
     const chessboardDiv = document.getElementById("chessboard");
     chessboardDiv.innerHTML = "";
     chessboardDiv.style.gridTemplateColumns = `repeat(${size}, 50px)`;
@@ -104,6 +125,6 @@ function isInside(newRow, newCol, size) {
 
 function getNumbersForCharacters(chars) {
     const row = chars.substring(0, 1).charCodeAt() - "A".charCodeAt();
-    const col = chars.substring(1, 2) - 1;
+    const col = new Number(chars.substring(1)) - 1;
     return [row, col];
 }
