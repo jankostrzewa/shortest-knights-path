@@ -50,7 +50,7 @@ function generateChessboard() {
             let name = "";
             if ((colNumber + rowNumber) % 2 !== 0) name = " odd";
             cell.className = "cell" + name;
-            cell.innerHTML =  getCharactersForNumbers(rowNumber, colNumber);
+            cell.innerHTML = getCharactersForNumbers(rowNumber, colNumber);
             chessboardDiv.appendChild(cell);
         }
     }
@@ -84,7 +84,6 @@ function findShortestPath() {
     const [startRow, startCol] = state.start;
     const [targetRow, targetCol] = state.target;
     queue.push(new Field(startRow, startCol, startRow, startCol));
-    console.log('start:', state.start, 'target:', state.target);
     while (queue.length !== 0) {
         const field = queue.pop();
 
@@ -113,7 +112,6 @@ function findShortestPath() {
                 if (newRow >= 0 && newRow < state.size && newCol >= 0 && newCol < state.size) {
                     if (visited[newRow][newCol] === false) {
                         queue.unshift(new Field(newRow, newCol, field.rowNumber, field.colNumber));
-                        console.log(`from ${field.rowNumber} ${field.colNumber} enqueued:`, newRow, newCol);
                     }
                 }
             }
@@ -129,7 +127,7 @@ function getPath(field, visited) {
     let currentColumn = field.colNumber;
     while (true) {
         const [parentRow, parentColumn] = visited[currentRow][currentColumn];
-        if(parentRow === currentRow && parentColumn === currentColumn) {
+        if (parentRow === currentRow && parentColumn === currentColumn) {
             break;
         }
         path.unshift(`${getCharactersForNumbers(parentRow, parentColumn)} => ${getCharactersForNumbers(currentRow, currentColumn)}`);
